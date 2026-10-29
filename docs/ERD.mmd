@@ -1,0 +1,441 @@
+---
+config:
+  theme: base
+  look: classic
+---
+erDiagram
+    direction LR
+
+    subgraph IDENTITY [01 - Identity Service]
+        direction TB
+        APP_USER {
+            uuid Id PK
+            string FullName
+            string NationalId UK
+            date DateOfBirth
+            uuid CollegeId FK
+            datetime CreatedAt
+        }
+    end
+
+    subgraph AFFAIRS [02 - Academic Affairs Service]
+        direction TB
+        ACADEMIC_COLLEGE {
+            uuid Id PK
+            string Name
+            string Code
+            decimal Latitude
+            decimal Longitude
+        }
+
+        DEPARTMENT {
+            uuid Id PK
+            string Name
+            string Code
+            uuid CollegeId FK
+        }
+
+        COLLEGE_PROGRAM {
+            uuid Id PK
+            string Name
+            int MaximumLevel
+            decimal MaximumCgpa
+            int BylawYear_StartYear
+            uuid DepartmentId FK
+        }
+
+        COURSE {
+            uuid Id PK
+            string Code
+            string Name
+            int? CreditHours
+            uuid ProgramId FK
+        }
+
+        PROFESSOR_PROFILE {
+            uuid Id PK
+            uuid UserId FK
+            string AcademicTitle
+            uuid DepartmentId FK
+        }
+
+        ACADEMIC_ASSISTANT_PROFILE {
+            uuid Id PK
+            uuid UserId FK
+            string Title
+            uuid DepartmentId FK
+        }
+
+        STUDENT {
+            uuid Id PK
+            uuid UserId FK
+            uuid ProgramId FK
+            string StudentCode
+            int AdmissionYear
+            int CurrentLevel
+            decimal Cgpa
+            string AcademicStatus
+        }
+
+        SEMESTER {
+            uuid Id PK
+            int AcademicYear_StartYear
+            string Season
+        }
+
+        SEMESTER_COURSE {
+            uuid Id PK
+            string Status
+            int Level
+            uuid CourseId FK
+            uuid SemesterId FK
+            uuid ProfessorId FK
+        }
+
+        SEMESTER_COURSE_ASSISTANT {
+            uuid SemesterCourseId PK, FK
+            uuid AcademicAssistantProfileId PK, FK
+        }
+
+        ACADEMIC_ADVISOR_ASSIGNMENT {
+            uuid Id PK
+            uuid StudentId FK
+            uuid ProfessorId FK
+        }
+
+        SEMESTER_REGISTRATION {
+            uuid Id PK
+            uuid StudentId FK
+            uuid SemesterId FK
+            string Status
+            datetime SubmittedAt
+            uuid? ReviewedByProfessorId FK
+            datetime? ReviewedAt
+            string? RejectionReason
+        }
+
+        SEMESTER_REGISTRATION_COURSE {
+            uuid SemesterRegistrationId FK,PK
+            uuid SemesterCourseId FK,PK
+        }
+
+        ENROLLMENT {
+            string Status
+            uuid StudentId FK,PK
+            uuid SemesterCourseId FK,PK
+        }
+
+        STUDENT_COMPLAINT {
+            uuid Id PK
+            uuid StudentId FK
+            string Subject
+            string Description
+            string Status
+            datetime CreatedAt
+            datetime? ResolvedAt
+            string? ResolutionDetails
+        }
+
+        STUDENT_AFFAIRS_REQUEST {
+            uuid Id PK
+            uuid StudentId FK
+            string RequestType
+            string Status
+            string? Description
+            string? AttachmentKey
+            uuid? AssignedTo
+            datetime CreatedAt
+            datetime? ResolvedAt
+        }
+
+        STUDENT_SEMESTER_RESULT {
+            uuid Id PK
+            uuid StudentId FK
+            uuid SemesterId FK
+            decimal SemesterGpa
+            decimal CumulativeGpa
+            int EarnedCreditHours
+        }
+    end
+
+    subgraph ATTENDANCE [03 - Attendance Service]
+        direction TB
+        LECTURE_SESSION {
+            uuid Id PK
+            uuid SemesterCourseId FK
+            uuid ProfessorId FK
+            datetime StartsAt
+            datetime EndsAt
+        }
+
+        SECTION_SESSION {
+            uuid Id PK
+            uuid SemesterCourseId FK
+            uuid AcademicAssistantId FK
+            datetime StartsAt
+            datetime EndsAt
+        }
+
+        LECTURE_ATTENDANCE {
+            uuid Id PK
+            uuid LectureSessionId FK
+            uuid StudentId FK
+            string? Notes
+        }
+
+        SECTION_ATTENDANCE {
+            uuid Id PK
+            uuid SectionSessionId FK
+            uuid StudentId FK
+            string? Notes
+        }
+    end
+
+    subgraph LMS [04 - Learning Management Service]
+        direction TB
+
+        COURSE_MATERIAL {
+            uuid Id PK
+            uuid SemesterCourseId FK
+            string Title
+            string MaterialType
+            string? AttachmentKey
+            datetime CreatedAt
+        }
+
+        COURSE_ANNOUNCEMENT {
+            uuid Id PK
+            uuid SemesterCourseId FK
+            string Title
+            string Content
+            uuid CreatedBy
+        }
+
+        ASSIGNMENT {
+            uuid Id PK
+            uuid SemesterCourseId FK
+            string Title
+            string Instructions
+            decimal MaximumScore
+            datetime? DueAt
+        }
+
+        ASSIGNMENT_SUBMISSION {
+            uuid Id PK
+            uuid AssignmentId FK
+            uuid StudentId
+            string? SubmissionText
+            string? AttachmentKey
+            datetime SubmittedAt
+            decimal? Score
+            string? Feedback
+        }
+
+        QUIZ {
+            uuid Id PK
+            uuid SemesterCourseId FK
+            string Title
+            int DurationMinutes
+            decimal MaximumScore
+            datetime StartsAt
+            datetime EndsAt
+            int MaximumAttempts
+        }
+
+        QUIZ_QUESTION {
+            uuid Id PK
+            uuid QuizId FK
+            string QuestionText
+            string QuestionType
+            decimal Points
+            int SortOrder
+        }
+
+        QUIZ_OPTION {
+            uuid Id PK
+            uuid QuestionId FK
+            string OptionText
+            boolean IsCorrect
+        }
+
+        QUIZ_ATTEMPT {
+            uuid QuizId FK,PK
+            uuid StudentId PK
+            datetime StartedAt
+            datetime? SubmittedAt
+            decimal? Score
+        }
+
+        QUIZ_ANSWER {
+            uuid QuizAttemptId FK,PK
+            uuid QuestionId FK,PK
+            uuid? SelectedOptionId FK
+            string? AnswerText
+            decimal? AwardedPoints
+        }
+
+        ASSESSMENT {
+            uuid Id PK
+            uuid SemesterCourseId FK
+            string AssessmentType
+            decimal MaximumScore
+            decimal WeightPercentage
+        }
+
+        ASSESSMENT_RESULT {
+            uuid AssessmentId FK,PK
+            uuid StudentId PK
+            decimal Score
+            string? LetterGrade
+            string? Feedback
+        }
+
+        CONVERSATION {
+            uuid Id PK
+            uuid SemesterCourseId FK
+            string ConversationType
+        }
+
+        CONVERSATION_PARTICIPANT {
+            uuid ConversationId FK,PK
+            uuid UserId PK
+            datetime JoinedAt
+        }
+
+        MESSAGE {
+            uuid Id PK
+            uuid ConversationId FK
+            uuid SenderId
+            string Content
+            datetime SentAt
+            boolean IsDeleted
+        }
+    end
+
+    subgraph PAYMENTS [05 - Payment Service]
+        direction TB
+        PAYMENT {
+            uuid Id PK
+            uuid StudentId
+            decimal Amount
+            string Currency
+            string PaymentPurpose
+            string Status
+            datetime CreatedAt
+            datetime? PaidAt
+        }
+
+        PAYMENT_ATTEMPT {
+            uuid Id PK
+            uuid PaymentId FK
+            string? ProviderTransactionId
+            string Status
+            string? FailureReason
+        }
+    end
+
+    subgraph PLATFORM [06 - Notifications and Audit]
+        direction TB
+        AUDIT_EVENT {
+            uuid Id PK
+            datetime Timestamp
+            string EventType
+            string? ActorId
+            string? TargetId
+            string Outcome
+            string? AdditionalInfo
+        }
+
+        NOTIFICATION {
+            uuid Id PK
+            uuid RecipientUserId
+            string Title
+            string Message
+            string Type
+            string Channel
+            string Status
+            datetime CreatedAt
+            datetime? ReadAt
+        }
+    end
+
+    %% ==================== RELATIONSHIPS (UNCHANGED) ====================
+    ACADEMIC_COLLEGE ||--o{ APP_USER : has
+    ACADEMIC_COLLEGE ||--o{ DEPARTMENT : contains
+    DEPARTMENT ||--o{ COLLEGE_PROGRAM : offers
+    COLLEGE_PROGRAM ||--o{ COURSE : contains
+    APP_USER ||--o| PROFESSOR_PROFILE : has
+    APP_USER ||--o| ACADEMIC_ASSISTANT_PROFILE : has
+    APP_USER ||--o| STUDENT : has
+    DEPARTMENT ||--o{ PROFESSOR_PROFILE : employs
+    DEPARTMENT ||--o{ ACADEMIC_ASSISTANT_PROFILE : employs
+    COLLEGE_PROGRAM ||--o{ STUDENT : enrolls
+    COURSE ||--o{ SEMESTER_COURSE : scheduled_as
+    SEMESTER ||--o{ SEMESTER_COURSE : includes
+    PROFESSOR_PROFILE ||--o{ SEMESTER_COURSE : teaches
+    SEMESTER_COURSE ||--o{ SEMESTER_COURSE_ASSISTANT : assigned_assistants
+    ACADEMIC_ASSISTANT_PROFILE ||--o{ SEMESTER_COURSE_ASSISTANT : assists
+    STUDENT ||--o{ ACADEMIC_ADVISOR_ASSIGNMENT : assigned
+    PROFESSOR_PROFILE ||--o{ ACADEMIC_ADVISOR_ASSIGNMENT : advises
+    STUDENT ||--o{ SEMESTER_REGISTRATION : submits
+    SEMESTER ||--o{ SEMESTER_REGISTRATION : has
+    SEMESTER_REGISTRATION ||--|{ SEMESTER_REGISTRATION_COURSE : contains
+    SEMESTER_COURSE ||--o{ SEMESTER_REGISTRATION_COURSE : requested
+    PROFESSOR_PROFILE o|--o{ SEMESTER_REGISTRATION : reviews
+    STUDENT ||--o{ ENROLLMENT : registers
+    SEMESTER_COURSE ||--o{ ENROLLMENT : has_students
+    SEMESTER_REGISTRATION ||--o{ ENROLLMENT : creates
+    STUDENT ||--o{ STUDENT_COMPLAINT : submits
+    STUDENT ||--o{ STUDENT_AFFAIRS_REQUEST : requests
+    SEMESTER_COURSE ||--o{ LECTURE_SESSION : schedules
+    PROFESSOR_PROFILE ||--o{ LECTURE_SESSION : conducts
+    SEMESTER_COURSE ||--o{ SECTION_SESSION : schedules
+    ACADEMIC_ASSISTANT_PROFILE ||--o{ SECTION_SESSION : conducts
+    LECTURE_SESSION ||--o{ LECTURE_ATTENDANCE : records
+    STUDENT ||--o{ LECTURE_ATTENDANCE : has
+    SECTION_SESSION ||--o{ SECTION_ATTENDANCE : records
+    STUDENT ||--o{ SECTION_ATTENDANCE : has
+    SEMESTER_COURSE ||--o| SEMESTER_COURSE : has_space
+    SEMESTER_COURSE ||--o{ COURSE_MATERIAL : contains
+    SEMESTER_COURSE ||--o{ COURSE_ANNOUNCEMENT : publishes
+    SEMESTER_COURSE ||--o{ ASSIGNMENT : offers
+    ASSIGNMENT ||--o{ ASSIGNMENT_SUBMISSION : receives
+    SEMESTER_COURSE ||--o{ QUIZ : offers
+    QUIZ ||--o{ QUIZ_QUESTION : contains
+    QUIZ_QUESTION ||--o{ QUIZ_OPTION : offers
+    QUIZ ||--o{ QUIZ_ATTEMPT : has
+    QUIZ_ATTEMPT ||--o{ QUIZ_ANSWER : contains
+    QUIZ_QUESTION ||--o{ QUIZ_ANSWER : answered_by
+    SEMESTER_COURSE ||--o{ ASSESSMENT : has
+    ASSESSMENT ||--o{ ASSESSMENT_RESULT : records
+    STUDENT ||--o{ STUDENT_SEMESTER_RESULT : has
+    SEMESTER ||--o{ STUDENT_SEMESTER_RESULT : records
+    SEMESTER_COURSE ||--o{ CONVERSATION : has
+    CONVERSATION ||--o{ CONVERSATION_PARTICIPANT : includes
+    CONVERSATION ||--o{ MESSAGE : contains
+    PAYMENT ||--o{ PAYMENT_ATTEMPT : has_attempts
+
+
+    %% ==================== SERVICE COLOR PALETTE ====================
+    classDef identity fill:#DBEAFE,stroke:#2563EB,color:#1E3A8A,stroke-width:1px
+    classDef affairs fill:#D1FAE5,stroke:#059669,color:#064E3B,stroke-width:1px
+    classDef attendance fill:#FFEDD5,stroke:#EA580C,color:#7C2D12,stroke-width:1px
+    classDef lms fill:#EDE9FE,stroke:#7C3AED,color:#4C1D95,stroke-width:1px
+    classDef payments fill:#FEF3C7,stroke:#D97706,color:#78350F,stroke-width:1px
+    classDef platform fill:#E2E8F0,stroke:#475569,color:#1E293B,stroke-width:1px
+
+    class APP_USER identity
+    class ACADEMIC_COLLEGE,DEPARTMENT,COLLEGE_PROGRAM,COURSE,PROFESSOR_PROFILE,ACADEMIC_ASSISTANT_PROFILE,STUDENT,SEMESTER,SEMESTER_COURSE,SEMESTER_COURSE_ASSISTANT,ACADEMIC_ADVISOR_ASSIGNMENT,SEMESTER_REGISTRATION,SEMESTER_REGISTRATION_COURSE,ENROLLMENT,STUDENT_COMPLAINT,STUDENT_AFFAIRS_REQUEST,STUDENT_SEMESTER_RESULT affairs
+    class LECTURE_SESSION,SECTION_SESSION,LECTURE_ATTENDANCE,SECTION_ATTENDANCE attendance
+    class COURSE_MATERIAL,COURSE_ANNOUNCEMENT,ASSIGNMENT,ASSIGNMENT_SUBMISSION,QUIZ,QUIZ_QUESTION,QUIZ_OPTION,QUIZ_ATTEMPT,QUIZ_ANSWER,ASSESSMENT,ASSESSMENT_RESULT,CONVERSATION,CONVERSATION_PARTICIPANT,MESSAGE lms
+    class PAYMENT,PAYMENT_ATTEMPT payments
+    class AUDIT_EVENT,NOTIFICATION platform
+
+
+    %% ==================== SUBGRAPH BACKGROUNDS ====================
+    style IDENTITY fill:#EFF6FF,stroke:#2563EB,stroke-width:2px
+    style AFFAIRS fill:#ECFDF5,stroke:#059669,stroke-width:2px
+    style ATTENDANCE fill:#FFF7ED,stroke:#EA5800,stroke-width:2px
+    style LMS fill:#F5F3FF,stroke:#7C3AED,stroke-width:2px
+    style PAYMENTS fill:#FFFBEB,stroke:#D97706,stroke-width:2px
+    style PLATFORM fill:#F8FAFC,stroke:#475569,stroke-width:2px

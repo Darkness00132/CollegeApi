@@ -2,7 +2,7 @@
 using College.Domain.Enums;
 using College.Domain.ValueObjects;
 
-namespace College.Domain.Entities
+namespace College.Domain.Entities.Affairs
 {
     public class Semester : AggregateRoot
     {

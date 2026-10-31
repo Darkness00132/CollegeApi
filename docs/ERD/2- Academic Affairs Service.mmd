@@ -30,6 +30,14 @@ erDiagram
         uuid CollegeId FK
     }
 
+    FACILITY {
+        uuid Id PK
+        string Name
+        string Type
+        int Capacity
+        uuid CollegeId FK
+    }
+
     COLLEGE_PROGRAM {
         uuid Id PK
         string Name
@@ -95,13 +103,23 @@ erDiagram
     SEMESTER_COURSE_PROFESSOR {
         uuid SemesterCourseId PK, FK
         uuid ProfessorId PK, FK
-        string? TeachingRole
         datetime AssignedAt
     }
 
     SEMESTER_COURSE_ASSISTANT {
         uuid SemesterCourseId PK, FK
         uuid AcademicAssistantProfileId PK, FK
+    }
+
+    %% ==================== COURSE SCHEDULING ====================
+
+    SEMESTER_COURSE_SCHEDULE {
+        uuid Id PK
+        uuid SemesterCourseId FK
+        uuid FacilityId FK
+        string DayOfWeek
+        time StartTime
+        time EndTime
     }
 
     %% ==================== ACADEMIC ADVISOR ====================
@@ -171,6 +189,8 @@ erDiagram
         datetime? PublishedAt
     }
 
+    %% ==================== STUDENT SEMESTER RESULTS ====================
+
     STUDENT_SEMESTER_RESULT {
         uuid Id PK
         uuid StudentId FK
@@ -189,6 +209,7 @@ erDiagram
     %% ==================== LOCAL COLLEGE RELATIONSHIPS ====================
 
     ACADEMIC_COLLEGE ||--o{ DEPARTMENT : contains
+    ACADEMIC_COLLEGE ||--o{ FACILITY : owns
 
     DEPARTMENT ||--o{ COLLEGE_PROGRAM : offers
     DEPARTMENT ||--o{ PROFESSOR_PROFILE : employs
@@ -211,6 +232,11 @@ erDiagram
 
     SEMESTER_COURSE ||--o{ SEMESTER_COURSE_ASSISTANT : has
     ACADEMIC_ASSISTANT_PROFILE ||--o{ SEMESTER_COURSE_ASSISTANT : assists
+
+    %% ==================== COURSE SCHEDULING RELATIONSHIPS ====================
+
+    SEMESTER_COURSE ||--o{ SEMESTER_COURSE_SCHEDULE : has
+    FACILITY ||--o{ SEMESTER_COURSE_SCHEDULE : hosts
 
     %% ==================== ACADEMIC ADVISORS ====================
 
@@ -243,22 +269,28 @@ erDiagram
 
     %% ==================== DATA INTEGRITY CONSTRAINTS ====================
 
-%% ENROLLMENT:
-%% Composite PK:
-%% (SemesterRegistrationId, SemesterCourseId)
+    %% ENROLLMENT:
+    %% Composite PK:
+    %% (SemesterRegistrationId, SemesterCourseId)
 
-%% Regular FKs:
-%% SemesterRegistrationId -> SEMESTER_REGISTRATION(Id)
-%% SemesterCourseId -> SEMESTER_COURSE(Id)
+    %% Regular FKs:
+    %% SemesterRegistrationId -> SEMESTER_REGISTRATION(Id)
+    %% SemesterCourseId -> SEMESTER_COURSE(Id)
 
-%% Application-level validation:
-%% SEMESTER_REGISTRATION.SemesterId
-%% must equal
-%% SEMESTER_COURSE.SemesterId
+    %% Application-level validation:
+    %% SEMESTER_REGISTRATION.SemesterId
+    %% must equal
+    %% SEMESTER_COURSE.SemesterId
 
-%% STUDENT_COURSE_RESULT:
-%% Composite PK and FK:
-%% (SemesterRegistrationId, SemesterCourseId)
-%% references ENROLLMENT(SemesterRegistrationId, SemesterCourseId)
+    %% STUDENT_COURSE_RESULT:
+    %% Composite PK and FK:
+    %% (SemesterRegistrationId, SemesterCourseId)
+    %% references ENROLLMENT(SemesterRegistrationId, SemesterCourseId)
 
-
+    %% SEMESTER_COURSE_SCHEDULE:
+    %% StartTime must be earlier than EndTime.
+    %% A facility cannot have overlapping schedules
+    %% on the same DayOfWeek.
+    %% A professor cannot have overlapping teaching schedules.
+    %% FacilityId must reference an existing FACILITY.
+    %% SemesterCourseId must reference an existing SEMESTER_COURSE.

@@ -1,6 +1,6 @@
 ﻿using College.Domain.Common;
 
-namespace College.Domain.Entities
+namespace College.Domain.Entities.Affairs
 {
     public class Course : AggregateRoot
     {

@@ -1,7 +1,7 @@
 ﻿using College.Domain.Common;
 using College.Domain.ValueObjects;
 
-namespace College.Domain.Entities
+namespace College.Domain.Entities.Affairs
 {
     public class CollegeProgram : AggregateRoot
     {
@@ -9,7 +9,7 @@ namespace College.Domain.Entities
 
         public AcademicLevel MaximumLevel { get; set; } = null!;
 
-        public CumulativeGPA MaximumCgpa { get; set; } = null!;
+        public double MaximumCgpa { get; set; }
 
         public AcademicYear BylawYear { get; set; } = null!;
 

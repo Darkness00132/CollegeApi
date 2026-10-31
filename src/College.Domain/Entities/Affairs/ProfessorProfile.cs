@@ -1,7 +1,8 @@
 ﻿using College.Domain.Common;
+using College.Domain.Entities.Identity;
 using College.Domain.Enums;
 
-namespace College.Domain.Entities
+namespace College.Domain.Entities.Affairs
 {
     public class ProfessorProfile : AggregateRoot
     {

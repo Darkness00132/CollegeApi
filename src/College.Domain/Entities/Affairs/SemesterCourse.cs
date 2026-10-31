@@ -1,9 +1,8 @@
 ﻿using College.Domain.Common;
 using College.Domain.Enums;
 using College.Domain.ValueObjects;
-using System.Collections.ObjectModel;
 
-namespace College.Domain.Entities
+namespace College.Domain.Entities.Affairs
 {
     public class SemesterCourse : AggregateRoot
     {
@@ -16,10 +15,5 @@ namespace College.Domain.Entities
 
         public Guid SemesterId { get; set; }
         public Semester Semester { get; set; } = null!;
-
-        public Guid ProfessorId { get; set; }
-        public ProfessorProfile Professor { get; set; } = null!;
-
-        public Collection<AcademicAssistantProfile> AcademicAssistants { get; set; } =  [];
     }
 }

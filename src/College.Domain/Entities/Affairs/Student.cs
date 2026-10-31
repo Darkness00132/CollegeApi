@@ -1,8 +1,9 @@
 ﻿using College.Domain.Common;
+using College.Domain.Entities.Identity;
 using College.Domain.Enums;
 using College.Domain.ValueObjects;
 
-namespace College.Domain.Entities
+namespace College.Domain.Entities.Affairs
 {
     public class Student : AggregateRoot
     {

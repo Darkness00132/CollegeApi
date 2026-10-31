@@ -6,9 +6,14 @@ config:
 erDiagram
     direction LR
 
-    %% External References: Academic Affairs Service
+    %% ==================== EXTERNAL REFERENCES ====================
+
+    %% Academic Affairs Service
 
     SEMESTER_COURSE {
+    }
+
+    SEMESTER_COURSE_SCHEDULE {
     }
 
     PROFESSOR_PROFILE {
@@ -20,48 +25,90 @@ erDiagram
     STUDENT {
     }
 
-    %% Local Attendance Tables
+    %% ==================== LECTURE SESSIONS ====================
 
     LECTURE_SESSION {
         uuid Id PK
         uuid SemesterCourseId FK
+        uuid? ScheduleId FK
         uuid ProfessorId FK
         datetime StartsAt
         datetime EndsAt
     }
 
+    %% ==================== SECTION SESSIONS ====================
+
     SECTION_SESSION {
         uuid Id PK
         uuid SemesterCourseId FK
+        uuid? ScheduleId FK
         uuid AcademicAssistantId FK
         datetime StartsAt
         datetime EndsAt
     }
 
+    %% ==================== LECTURE ATTENDANCE ====================
+
     LECTURE_ATTENDANCE {
-        uuid LectureSessionId PK,FK
-        uuid StudentId PK,FK
-        string Notes "Nullable"
+        uuid LectureSessionId PK, FK
+        uuid StudentId PK, FK
+        string? Notes
     }
+
+    %% ==================== SECTION ATTENDANCE ====================
 
     SECTION_ATTENDANCE {
-        uuid SectionSessionId PK,FK
-        uuid StudentId PK,FK
-        string Notes "Nullable"
+        uuid SectionSessionId PK, FK
+        uuid StudentId PK, FK
+        string? Notes
     }
 
-    %% Cross-Service Relationships
+    %% ==================== EXTERNAL ACADEMIC RELATIONSHIPS ====================
 
     SEMESTER_COURSE ||--o{ LECTURE_SESSION : academic_affairs_reference
+    SEMESTER_COURSE_SCHEDULE o|--o{ LECTURE_SESSION : planned_schedule_reference
     PROFESSOR_PROFILE ||--o{ LECTURE_SESSION : academic_affairs_reference
 
     SEMESTER_COURSE ||--o{ SECTION_SESSION : academic_affairs_reference
+    SEMESTER_COURSE_SCHEDULE o|--o{ SECTION_SESSION : planned_schedule_reference
     ACADEMIC_ASSISTANT_PROFILE ||--o{ SECTION_SESSION : academic_affairs_reference
 
     STUDENT ||--o{ LECTURE_ATTENDANCE : academic_affairs_reference
     STUDENT ||--o{ SECTION_ATTENDANCE : academic_affairs_reference
 
-    %% Local Relationships
+    %% ==================== LOCAL ATTENDANCE RELATIONSHIPS ====================
 
     LECTURE_SESSION ||--o{ LECTURE_ATTENDANCE : records
     SECTION_SESSION ||--o{ SECTION_ATTENDANCE : records
+
+    %% ==================== DATA INTEGRITY CONSTRAINTS ====================
+
+    %% LECTURE_SESSION:
+    %% SemesterCourseId references Academic Affairs.
+    %% ScheduleId optionally references SEMESTER_COURSE_SCHEDULE.
+    %% ProfessorId references PROFESSOR_PROFILE.
+    %% StartsAt must be earlier than EndsAt.
+
+    %% SECTION_SESSION:
+    %% SemesterCourseId references Academic Affairs.
+    %% ScheduleId optionally references SEMESTER_COURSE_SCHEDULE.
+    %% AcademicAssistantId references ACADEMIC_ASSISTANT_PROFILE.
+    %% StartsAt must be earlier than EndsAt.
+
+    %% SESSION SCHEDULE VALIDATION:
+    %% When ScheduleId is provided:
+    %% The referenced schedule must belong to the same SemesterCourse.
+    %% The actual session may differ from the planned time
+    %% to support delays and rescheduling.
+
+    %% LECTURE_ATTENDANCE:
+    %% Composite PK:
+    %% (LectureSessionId, StudentId)
+
+    %% SECTION_ATTENDANCE:
+    %% Composite PK:
+    %% (SectionSessionId, StudentId)
+
+    %% STUDENT VALIDATION:
+    %% Students recorded in attendance must be eligible
+    %% for the corresponding SemesterCourse.

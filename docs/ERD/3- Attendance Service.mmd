@@ -1,0 +1,67 @@
+---
+config:
+  theme: base
+  look: classic
+---
+erDiagram
+    direction LR
+
+    %% External References: Academic Affairs Service
+
+    SEMESTER_COURSE {
+    }
+
+    PROFESSOR_PROFILE {
+    }
+
+    ACADEMIC_ASSISTANT_PROFILE {
+    }
+
+    STUDENT {
+    }
+
+    %% Local Attendance Tables
+
+    LECTURE_SESSION {
+        uuid Id PK
+        uuid SemesterCourseId FK
+        uuid ProfessorId FK
+        datetime StartsAt
+        datetime EndsAt
+    }
+
+    SECTION_SESSION {
+        uuid Id PK
+        uuid SemesterCourseId FK
+        uuid AcademicAssistantId FK
+        datetime StartsAt
+        datetime EndsAt
+    }
+
+    LECTURE_ATTENDANCE {
+        uuid LectureSessionId PK,FK
+        uuid StudentId PK,FK
+        string Notes "Nullable"
+    }
+
+    SECTION_ATTENDANCE {
+        uuid SectionSessionId PK,FK
+        uuid StudentId PK,FK
+        string Notes "Nullable"
+    }
+
+    %% Cross-Service Relationships
+
+    SEMESTER_COURSE ||--o{ LECTURE_SESSION : academic_affairs_reference
+    PROFESSOR_PROFILE ||--o{ LECTURE_SESSION : academic_affairs_reference
+
+    SEMESTER_COURSE ||--o{ SECTION_SESSION : academic_affairs_reference
+    ACADEMIC_ASSISTANT_PROFILE ||--o{ SECTION_SESSION : academic_affairs_reference
+
+    STUDENT ||--o{ LECTURE_ATTENDANCE : academic_affairs_reference
+    STUDENT ||--o{ SECTION_ATTENDANCE : academic_affairs_reference
+
+    %% Local Relationships
+
+    LECTURE_SESSION ||--o{ LECTURE_ATTENDANCE : records
+    SECTION_SESSION ||--o{ SECTION_ATTENDANCE : records

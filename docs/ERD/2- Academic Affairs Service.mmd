@@ -1,0 +1,264 @@
+---
+config:
+  theme: base
+  look: classic
+---
+erDiagram
+    direction LR
+
+    %% ==================== EXTERNAL REFERENCE ====================
+
+    %% Identity Service
+
+    APP_USER {
+    }
+
+    %% ==================== COLLEGE STRUCTURE ====================
+
+    ACADEMIC_COLLEGE {
+        uuid Id PK
+        string Name
+        string Code
+        decimal Latitude
+        decimal Longitude
+    }
+
+    DEPARTMENT {
+        uuid Id PK
+        string Name
+        string Code
+        uuid CollegeId FK
+    }
+
+    COLLEGE_PROGRAM {
+        uuid Id PK
+        string Name
+        int MaximumLevel
+        decimal MaximumCgpa
+        int BylawYear_StartYear
+        uuid DepartmentId FK
+    }
+
+    COURSE {
+        uuid Id PK
+        string Code
+        string Name
+        int CreditHours
+        uuid ProgramId FK
+    }
+
+    %% ==================== ACADEMIC PROFILES ====================
+
+    PROFESSOR_PROFILE {
+        uuid Id PK
+        uuid UserId FK
+        string AcademicTitle
+        uuid DepartmentId FK
+    }
+
+    ACADEMIC_ASSISTANT_PROFILE {
+        uuid Id PK
+        uuid UserId FK
+        string Title
+        uuid DepartmentId FK
+    }
+
+    STUDENT {
+        uuid Id PK
+        uuid UserId FK
+        uuid ProgramId FK
+        string StudentCode
+        int AdmissionYear
+        int CurrentLevel
+        decimal Cgpa
+        string AcademicStatus
+    }
+
+    %% ==================== ACADEMIC CALENDAR ====================
+
+    SEMESTER {
+        uuid Id PK
+        int AcademicYear_StartYear
+        string Season
+    }
+
+    SEMESTER_COURSE {
+        uuid Id PK
+        string Status
+        int Level
+        uuid CourseId FK
+        uuid SemesterId FK
+    }
+
+    %% ==================== COURSE TEACHING ASSIGNMENTS ====================
+
+    SEMESTER_COURSE_PROFESSOR {
+        uuid SemesterCourseId PK, FK
+        uuid ProfessorId PK, FK
+        string? TeachingRole
+        datetime AssignedAt
+    }
+
+    SEMESTER_COURSE_ASSISTANT {
+        uuid SemesterCourseId PK, FK
+        uuid AcademicAssistantProfileId PK, FK
+    }
+
+    %% ==================== ACADEMIC ADVISOR ====================
+
+    ACADEMIC_ADVISOR_ASSIGNMENT {
+        uuid Id PK
+        uuid StudentId FK
+        uuid ProfessorId FK
+    }
+
+    %% ==================== SEMESTER REGISTRATION ====================
+
+    SEMESTER_REGISTRATION {
+        uuid Id PK
+        uuid StudentId FK
+        uuid SemesterId FK
+        string Status
+        datetime? SubmittedAt
+    }
+
+    %% ==================== ENROLLMENT ====================
+
+    ENROLLMENT {
+        uuid SemesterRegistrationId PK, FK
+        uuid SemesterCourseId PK, FK
+        string Status
+        uuid? ReviewedByProfessorId FK
+        datetime? ReviewedAt
+        string? RejectionReason
+        datetime? EnrolledAt
+        datetime? WithdrawnAt
+    }
+
+    %% ==================== STUDENT AFFAIRS ====================
+
+    STUDENT_COMPLAINT {
+        uuid Id PK
+        uuid StudentId FK
+        string Subject
+        string Description
+        string Status
+        datetime CreatedAt
+        datetime? ResolvedAt
+        string? ResolutionDetails
+    }
+
+    STUDENT_AFFAIRS_REQUEST {
+        uuid Id PK
+        uuid StudentId FK
+        string RequestType
+        string Status
+        string? Description
+        string? AttachmentKey
+        datetime CreatedAt
+        datetime? ResolvedAt
+    }
+
+    %% ==================== STUDENT RESULTS ====================
+
+    STUDENT_COURSE_RESULT {
+        uuid SemesterRegistrationId PK, FK
+        uuid SemesterCourseId PK, FK
+        decimal FinalScore
+        string? LetterGrade
+        decimal? GradePoints
+        boolean IsPassed
+        datetime? PublishedAt
+    }
+
+    STUDENT_SEMESTER_RESULT {
+        uuid Id PK
+        uuid StudentId FK
+        uuid SemesterId FK
+        decimal SemesterGpa
+        decimal CumulativeGpa
+        int EarnedCreditHours
+    }
+
+    %% ==================== EXTERNAL IDENTITY RELATIONSHIPS ====================
+
+    APP_USER ||--o| PROFESSOR_PROFILE : identity_reference
+    APP_USER ||--o| ACADEMIC_ASSISTANT_PROFILE : identity_reference
+    APP_USER ||--o| STUDENT : identity_reference
+
+    %% ==================== LOCAL COLLEGE RELATIONSHIPS ====================
+
+    ACADEMIC_COLLEGE ||--o{ DEPARTMENT : contains
+
+    DEPARTMENT ||--o{ COLLEGE_PROGRAM : offers
+    DEPARTMENT ||--o{ PROFESSOR_PROFILE : employs
+    DEPARTMENT ||--o{ ACADEMIC_ASSISTANT_PROFILE : employs
+
+    COLLEGE_PROGRAM ||--o{ COURSE : contains
+    COLLEGE_PROGRAM ||--o{ STUDENT : enrolls
+
+    %% ==================== SEMESTER RELATIONSHIPS ====================
+
+    COURSE ||--o{ SEMESTER_COURSE : scheduled_as
+    SEMESTER ||--o{ SEMESTER_COURSE : includes
+
+    %% ==================== PROFESSOR ASSIGNMENTS ====================
+
+    SEMESTER_COURSE ||--o{ SEMESTER_COURSE_PROFESSOR : has
+    PROFESSOR_PROFILE ||--o{ SEMESTER_COURSE_PROFESSOR : teaches
+
+    %% ==================== ASSISTANT ASSIGNMENTS ====================
+
+    SEMESTER_COURSE ||--o{ SEMESTER_COURSE_ASSISTANT : has
+    ACADEMIC_ASSISTANT_PROFILE ||--o{ SEMESTER_COURSE_ASSISTANT : assists
+
+    %% ==================== ACADEMIC ADVISORS ====================
+
+    STUDENT ||--o{ ACADEMIC_ADVISOR_ASSIGNMENT : assigned
+    PROFESSOR_PROFILE ||--o{ ACADEMIC_ADVISOR_ASSIGNMENT : advises
+
+    %% ==================== SEMESTER REGISTRATION ====================
+
+    STUDENT ||--o{ SEMESTER_REGISTRATION : submits
+    SEMESTER ||--o{ SEMESTER_REGISTRATION : receives
+
+    SEMESTER_REGISTRATION ||--o{ ENROLLMENT : contains
+    SEMESTER_COURSE ||--o{ ENROLLMENT : selected_in
+
+    PROFESSOR_PROFILE o|--o{ ENROLLMENT : reviews
+
+    %% ==================== STUDENT AFFAIRS ====================
+
+    STUDENT ||--o{ STUDENT_COMPLAINT : submits
+    STUDENT ||--o{ STUDENT_AFFAIRS_REQUEST : requests
+
+    %% ==================== STUDENT COURSE RESULTS ====================
+
+    ENROLLMENT ||--o| STUDENT_COURSE_RESULT : has_final_result
+
+    %% ==================== STUDENT SEMESTER RESULTS ====================
+
+    STUDENT ||--o{ STUDENT_SEMESTER_RESULT : receives
+    SEMESTER ||--o{ STUDENT_SEMESTER_RESULT : records
+
+    %% ==================== DATA INTEGRITY CONSTRAINTS ====================
+
+%% ENROLLMENT:
+%% Composite PK:
+%% (SemesterRegistrationId, SemesterCourseId)
+
+%% Regular FKs:
+%% SemesterRegistrationId -> SEMESTER_REGISTRATION(Id)
+%% SemesterCourseId -> SEMESTER_COURSE(Id)
+
+%% Application-level validation:
+%% SEMESTER_REGISTRATION.SemesterId
+%% must equal
+%% SEMESTER_COURSE.SemesterId
+
+%% STUDENT_COURSE_RESULT:
+%% Composite PK and FK:
+%% (SemesterRegistrationId, SemesterCourseId)
+%% references ENROLLMENT(SemesterRegistrationId, SemesterCourseId)
+
+

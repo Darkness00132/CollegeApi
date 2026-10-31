@@ -1,0 +1,43 @@
+---
+config:
+  theme: base
+  look: classic
+---
+erDiagram
+    direction LR
+
+    %% External Reference: Identity Service
+
+    APP_USER {
+    }
+
+    %% Audit
+
+    AUDIT_EVENT {
+        uuid Id PK
+        datetime Timestamp
+        string EventType
+        string ActorType
+        string? ActorId
+        string TargetId
+        string Outcome
+        string AdditionalInfo
+    }
+
+    %% Notifications
+
+    NOTIFICATION {
+        uuid Id PK
+        uuid RecipientUserId FK
+        string Title
+        string Message
+        string Type
+        string Channel
+        string Status
+        datetime CreatedAt
+        datetime? ReadAt
+    }
+
+    %% Cross-Service Relationship
+
+    APP_USER ||--o{ NOTIFICATION : receives

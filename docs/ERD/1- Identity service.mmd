@@ -1,0 +1,34 @@
+---
+config:
+  theme: base
+  look: classic
+---
+erDiagram
+    direction LR
+
+    APP_USER {
+        uuid Id PK
+        string FullName
+        string NationalId UK
+        date DateOfBirth
+        datetime CreatedAt
+    }
+
+    USER_COLLEGE {
+        uuid UserId PK, FK
+        uuid CollegeId PK, FK
+        string AffiliationType
+        boolean IsPrimary
+        boolean IsActive
+    }
+
+    %% External Reference: Academic Affairs Service
+    ACADEMIC_COLLEGE {
+    }
+
+    %% Local Relationships
+    APP_USER ||--o{ USER_COLLEGE : has_affiliations
+
+    %% Cross-Service Relationship
+    ACADEMIC_COLLEGE ||--o{ USER_COLLEGE : references_academic_affairs
+

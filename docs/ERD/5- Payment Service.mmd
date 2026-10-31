@@ -1,0 +1,42 @@
+---
+config:
+  theme: base
+  look: classic
+---
+erDiagram
+    direction LR
+
+    %% External Reference: Academic Affairs
+
+    STUDENT {
+    }
+
+    %% Local Payment Tables
+
+    PAYMENT {
+        uuid Id PK
+        uuid StudentId FK
+        decimal Amount
+        string Currency
+        string PaymentPurpose
+        string Status
+        datetime CreatedAt
+        datetime PaidAt "Nullable"
+    }
+
+    PAYMENT_ATTEMPT {
+        uuid Id PK
+        uuid PaymentId FK
+        string? ProviderTransactionId
+        string Status
+        string? FailureReason
+        datetime CreatedAt
+    }
+
+    %% Cross-Service Relationship
+
+    STUDENT ||--o{ PAYMENT : academic_affairs_reference
+
+    %% Local Relationship
+
+    PAYMENT ||--o{ PAYMENT_ATTEMPT : has_attempts

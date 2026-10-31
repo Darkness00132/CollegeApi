@@ -1,0 +1,190 @@
+---
+config:
+  theme: base
+  look: classic
+---
+erDiagram
+    direction LR
+
+    %% ==================== EXTERNAL REFERENCES ====================
+
+    %% Academic Affairs Service
+    SEMESTER_COURSE {
+    }
+
+    STUDENT {
+    }
+
+    %% Identity Service
+    APP_USER {
+    }
+
+    %% ==================== COURSE CONTENT ====================
+
+    COURSE_MATERIAL {
+        uuid Id PK
+        uuid SemesterCourseId FK
+        string Title
+        string MaterialType
+        string AttachmentKey
+        datetime CreatedAt
+    }
+
+    COURSE_ANNOUNCEMENT {
+        uuid Id PK
+        uuid SemesterCourseId FK
+        string Title
+        string Content
+        uuid CreatedBy FK
+    }
+
+    %% ==================== ASSIGNMENT MANAGEMENT ====================
+
+    ASSIGNMENT {
+        uuid Id PK
+        uuid SemesterCourseId FK
+        string Title
+        string Instructions
+        decimal MaximumScore
+        datetime DueAt
+    }
+
+    ASSIGNMENT_SUBMISSION {
+        uuid AssignmentId PK, FK
+        uuid StudentId PK, FK
+        string SubmissionText
+        string AttachmentKey
+        datetime SubmittedAt
+        decimal Score
+        string Feedback
+    }
+
+    %% ==================== QUIZ MANAGEMENT ====================
+
+    QUIZ {
+        uuid Id PK
+        uuid SemesterCourseId FK
+        string Title
+        int DurationMinutes
+        decimal MaximumScore
+        datetime StartsAt
+        datetime EndsAt
+        int MaximumAttempts
+    }
+
+    QUIZ_QUESTION {
+        uuid Id PK
+        uuid QuizId FK
+        string QuestionText
+        string QuestionType
+        decimal Points
+        int SortOrder
+    }
+
+    QUIZ_OPTION {
+        uuid Id PK
+        uuid QuestionId FK
+        string OptionText
+        boolean IsCorrect
+    }
+
+    QUIZ_ATTEMPT {
+        uuid Id PK
+        uuid QuizId FK
+        uuid StudentId FK
+        datetime StartedAt
+        datetime SubmittedAt
+        decimal Score
+    }
+
+    QUIZ_ANSWER {
+        uuid QuizAttemptId PK, FK
+        uuid QuestionId PK, FK
+        uuid SelectedOptionId FK
+        string AnswerText
+        decimal AwardedPoints
+    }
+
+    %% ==================== ASSESSMENT MANAGEMENT ====================
+
+    ASSESSMENT {
+        uuid Id PK
+        uuid SemesterCourseId FK
+        string AssessmentType
+        decimal MaximumScore
+        decimal WeightPercentage
+    }
+
+    ASSESSMENT_RESULT {
+        uuid AssessmentId PK, FK
+        uuid StudentId PK, FK
+        decimal Score
+        string LetterGrade
+        string Feedback
+    }
+
+    %% ==================== CONVERSATIONS ====================
+
+    CONVERSATION {
+        uuid Id PK
+        uuid SemesterCourseId FK
+        string ConversationType
+    }
+
+    CONVERSATION_PARTICIPANT {
+        uuid ConversationId PK, FK
+        uuid UserId PK, FK
+        datetime JoinedAt
+    }
+
+    MESSAGE {
+        uuid Id PK
+        uuid ConversationId FK
+        uuid SenderId FK
+        string Content
+        datetime SentAt
+        boolean IsDeleted
+    }
+
+    %% ==================== CROSS-SERVICE RELATIONSHIPS ====================
+
+    %% Academic Affairs References
+
+    SEMESTER_COURSE ||--o{ COURSE_MATERIAL : has
+    SEMESTER_COURSE ||--o{ COURSE_ANNOUNCEMENT : has
+    SEMESTER_COURSE ||--o{ ASSIGNMENT : has
+    SEMESTER_COURSE ||--o{ QUIZ : has
+    SEMESTER_COURSE ||--o{ ASSESSMENT : has
+    SEMESTER_COURSE ||--o{ CONVERSATION : has
+
+    STUDENT ||--o{ ASSIGNMENT_SUBMISSION : submits
+    STUDENT ||--o{ QUIZ_ATTEMPT : takes
+    STUDENT ||--o{ ASSESSMENT_RESULT : receives
+
+    %% Identity References
+
+    APP_USER ||--o{ COURSE_ANNOUNCEMENT : creates
+    APP_USER ||--o{ CONVERSATION_PARTICIPANT : participates
+    APP_USER ||--o{ MESSAGE : sends
+
+    %% ==================== LOCAL ASSIGNMENT RELATIONSHIPS ====================
+
+    ASSIGNMENT ||--o{ ASSIGNMENT_SUBMISSION : receives
+
+    %% ==================== LOCAL QUIZ RELATIONSHIPS ====================
+
+    QUIZ ||--o{ QUIZ_QUESTION : contains
+    QUIZ_QUESTION ||--o{ QUIZ_OPTION : offers
+    QUIZ ||--o{ QUIZ_ATTEMPT : receives
+    QUIZ_ATTEMPT ||--o{ QUIZ_ANSWER : contains
+    QUIZ_QUESTION ||--o{ QUIZ_ANSWER : answered_by
+    QUIZ_OPTION o|--o{ QUIZ_ANSWER : selected_in
+
+    %% ==================== LOCAL ASSESSMENT RELATIONSHIPS ====================
+
+    ASSESSMENT ||--o{ ASSESSMENT_RESULT : produces
+
+    %% ==================== LOCAL CONVERSATION RELATIONSHIPS ====================
+
+    CONVERSATION ||--o{ CONVERSATION_PARTICIPANT : includes
+    CONVERSATION ||--o{ MESSAGE : contains

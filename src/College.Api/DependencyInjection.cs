@@ -1,4 +1,5 @@
-﻿using College.Api.Middleware;
+﻿using College.Api.Cors;
+using College.Api.Middleware;
 using Microsoft.OpenApi;
 using Scalar.AspNetCore;
 
@@ -13,6 +14,8 @@ public static class DependencyInjection
         var apiVersion = config["Version"] ?? "v1";
 
         services.AddControllers();
+
+        services.AddConfiguredCors(config);
 
         services.AddExceptionHandler<GlobalExceptionHandler>();
         services.AddProblemDetails();

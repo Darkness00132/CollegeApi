@@ -1,5 +1,6 @@
 using College.Api;
 using College.Api.Middleware;
+using College.Api.RateLimiting;
 using College.Application;
 using College.Infrastructure;
 using College.Infrastructure.Persistence;
@@ -30,6 +31,11 @@ if(app.Environment.IsDevelopment())
 app.MapDefaultEndpoints();
 
 app.UseMiddleware<CorrelationIdMiddleware>();
+
+// After the correlation id middleware so 429 rejections still carry X-Correlation-Id,
+// and before the exception handler so rate limited requests short-circuit without
+// touching authentication, HTTPS redirection, or the database.
+app.UseConfiguredRateLimiting();
 
 app.UseExceptionHandler();
 

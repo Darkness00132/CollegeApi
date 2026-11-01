@@ -1,5 +1,6 @@
+﻿using College.Api.Middleware;
+using College.Api.RateLimiting;
 ﻿using College.Api.Cors;
-using College.Api.Middleware;
 using Microsoft.OpenApi;
 using Scalar.AspNetCore;
 
@@ -15,6 +16,7 @@ public static class DependencyInjection
 
         services.AddControllers();
 
+        services.AddConfiguredRateLimiting(config);
         services.AddConfiguredCors(config);
 
         services.AddExceptionHandler<GlobalExceptionHandler>();

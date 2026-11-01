@@ -362,3 +362,6 @@ MigrationBackup/
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
 /.zcode/plans
+
+# Aspire publish output (generated, contains generated secrets)
+compose/

@@ -3,6 +3,7 @@
     <Project Path="src/College.Api/College.Api.csproj" />
     <Project Path="src/College.Application/College.Application.csproj" />
     <Project Path="src/College.Domain/College.Domain.csproj" />
+    <Project Path="src/College.Host/College.Host.csproj" Id="0688659d-fc11-40f6-ada0-d4a140bc83d0" />
     <Project Path="src/College.Infrastructure/College.Infrastructure.csproj" />
   </Folder>
 </Solution>

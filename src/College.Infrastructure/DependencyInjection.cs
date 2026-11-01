@@ -13,12 +13,12 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace College.Infrastructure
 {
-    public static class DepenencyInjection
+    public static class DependencyInjection
     {
         public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
         {
             services.AddDbContext<AppDbContext>(options =>
-                options.UseSqlServer(configuration.GetConnectionString("DefaultConnection")));
+                options.UseNpgsql(configuration.GetConnectionString("collegedb")));
 
             // AddIdentityCore instead of AddIdentity: an API needs no cookie scheme.
             services.AddHttpContextAccessor();

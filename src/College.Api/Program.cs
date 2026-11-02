@@ -1,5 +1,7 @@
 using College.Api;
+using College.Api.Cors;
 using College.Api.Middleware;
+using College.Api.RateLimiting;
 using College.Application;
 using College.Infrastructure;
 
@@ -21,6 +23,15 @@ if (app.Environment.IsDevelopment())
 app.MapDefaultEndpoints();
 
 app.UseMiddleware<CorrelationIdMiddleware>();
+
+// After the correlation id middleware so 429 rejections still carry X-Correlation-Id,
+// and before the exception handler so rate limited requests short-circuit without
+// touching authentication, HTTPS redirection, or the database.
+app.UseConfiguredRateLimiting();
+// CORS before the exception handler and HTTPS redirection so ProblemDetails errors and
+// redirects also carry CORS headers back to browser clients; preflight OPTIONS requests
+// short-circuit here without touching auth or the database.
+app.UseConfiguredCors();
 
 app.UseExceptionHandler();
 

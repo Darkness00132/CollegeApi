@@ -8,8 +8,13 @@ var postgres = builder.AddPostgres("postgres")
 
 var collegedb = postgres.AddDatabase("collegedb");
 
+var redis = builder.AddRedis("redis")
+    .WithLifetime(ContainerLifetime.Persistent);
+
 builder.AddProject<Projects.College_Api>("college-api")
     .WithReference(collegedb)
-    .WaitFor(collegedb);
+    .WithReference(redis)
+    .WaitFor(collegedb)
+    .WaitFor(redis);
 
 builder.Build().Run();

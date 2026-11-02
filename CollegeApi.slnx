@@ -6,4 +6,8 @@
     <Project Path="src/College.Host/College.Host.csproj" Id="0688659d-fc11-40f6-ada0-d4a140bc83d0" />
     <Project Path="src/College.Infrastructure/College.Infrastructure.csproj" />
   </Folder>
+  <Folder Name="/test/">
+    <Project Path="test/Application.Tests/Application.Tests.csproj" Id="a7aeee48-6d4a-4970-a104-0d016bf6b20d" />
+    <Project Path="test/Domain.UnitTests/Domain.UnitTests.csproj" Id="bc770d53-3584-49fb-8a7c-3fa4e5c6289b" />
+  </Folder>
 </Solution>

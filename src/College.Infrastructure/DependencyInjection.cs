@@ -6,21 +6,23 @@ using College.Infrastructure.Auth;
 using College.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
 
 namespace College.Infrastructure
 {
     public static class DependencyInjection
     {
-        public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
+        public static IServiceCollection AddInfrastructure(this IHostApplicationBuilder builder)
         {
-            services.AddDbContext<AppDbContext>(options =>
-                options.UseNpgsql(configuration.GetConnectionString("collegedb")));
+            builder.AddNpgsqlDbContext<AppDbContext>("collegedb");
+            builder.AddRedisClient("redis");
 
-            // AddIdentityCore instead of AddIdentity: an API needs no cookie scheme.
+            var services = builder.Services;
+            var configuration = builder.Configuration;
+
             services.AddHttpContextAccessor();
 
             services
@@ -71,7 +73,9 @@ namespace College.Infrastructure
 
             services.AddOptions<JwtSettings>().Bind(configuration.GetSection(JwtSettings.SectionName));
             services.AddScoped<ITokenService, JwtTokenService>();
+
             services.AddHostedService<RoleSeedingHostedService>();
+            services.AddHostedService<MigrationHostService>();
 
             return services;
         }
